@@ -1,4 +1,4 @@
-document.getElementById("botao-atualizar").addEventListener("click", () => {
+function carregarDados() {
   const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSosxgDZTlbK_m97ie4nepmGwc8i6B_EbE1SpvLqkhB2fsyZeYH3vYA-NjAr6n9ciydvS0PyKwmYKla/pub?gid=889291349&single=true&output=csv";
 
   fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url))
@@ -12,17 +12,14 @@ document.getElementById("botao-atualizar").addEventListener("click", () => {
       const linhas = resultado.data;
       const linha37 = linhas[36];
 
-      // Linhas para "Falta Para"
       const linha5 = linhas[4];
       const linha6 = linhas[5];
       const linha8 = linhas[7];
       const linha9 = linhas[8];
 
-      // Limpa o container principal
       const container = document.querySelector(".tabela-container");
       container.innerHTML = "";
 
-      // Cria as 4 tabelas principais
       criarTituloETabela("Tempo de Atendimento PP", ["TOTAL OS", "PRAZO", "VENCIDO", "AF %"],
         linha37.slice(1, 5), "indicador-table", container);
 
@@ -35,11 +32,9 @@ document.getElementById("botao-atualizar").addEventListener("click", () => {
       criarTituloETabela("Reabertura AC", ["REAB AC", "ATS EXE", "AT %"],
         linha37.slice(12, 15), "indicador-table-reab-ac", container);
 
-      // Atualiza tabela do menu (Falta Para)
       const tabelaFaltaPara = document.getElementById("FaltaPara");
-      tabelaFaltaPara.innerHTML = ""; // limpa tabela antiga
+      tabelaFaltaPara.innerHTML = "";
 
-      // Cria cabeçalho
       const cabecalho = document.createElement("tr");
       ["CATEGORIA", "FALTA", "PARA"].forEach(titulo => {
         const th = document.createElement("th");
@@ -48,7 +43,6 @@ document.getElementById("botao-atualizar").addEventListener("click", () => {
       });
       tabelaFaltaPara.appendChild(cabecalho);
 
-      // Adiciona as 4 linhas de dados
       [linha5, linha6, linha8, linha9].forEach(linha => {
         const tr = document.createElement("tr");
         linha.slice(16, 19).forEach(valor => {
@@ -62,11 +56,14 @@ document.getElementById("botao-atualizar").addEventListener("click", () => {
     .catch(err => {
       console.error("Erro ao carregar os dados:", err);
     });
-});
+}
 
-/**
- * Cria um título <h2> e uma tabela com dados.
- */
+// Chama a função automaticamente ao carregar a página
+window.addEventListener("DOMContentLoaded", carregarDados);
+
+// Também permite que o botão continue funcionando
+document.getElementById("botao-atualizar").addEventListener("click", carregarDados);
+
 function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
   const titulo = document.createElement("h2");
   titulo.textContent = tituloTexto;
@@ -86,18 +83,36 @@ function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
 
   // Linha de dados
   const linhaDados = document.createElement("tr");
-  dados.forEach(valor => {
+  dados.forEach((valor, i) => {
     const td = document.createElement("td");
     td.textContent = valor;
 
     if (typeof valor === "string" && valor.includes('%')) {
+      const num = parseFloat(valor.replace('%', '').replace(',', '.'));
       td.classList.add("porcentagem");
+
+      if (!isNaN(num)) {
+        switch (tabelaId) {
+          case "indicador-table": // Tempo de Atendimento PP
+          case "indicador-table-ac": // Tempo de Atendimento AC
+            td.classList.add(num >= 75.00 ? "pct-verde" : "pct-vermelho");
+            break;
+
+          case "indicador-table-reab-pp": // Reabertura PP
+            td.classList.add(num <= 1.99 ? "pct-verde" : "pct-vermelho");
+            break;
+
+          case "indicador-table-reab-ac": // Reabertura AC
+            td.classList.add(num <= 3.49 ? "pct-verde" : "pct-vermelho");
+            break;
+        }
+      }
     }
 
     linhaDados.appendChild(td);
   });
-  tabela.appendChild(linhaDados);
 
+  tabela.appendChild(linhaDados);
   container.appendChild(tabela);
 }
 

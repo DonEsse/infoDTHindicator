@@ -139,3 +139,14 @@ button:hover {
   font-size: 20px;
   cursor: pointer;
 }
+
+/* Estilos para as porcentagens */
+.pct-verde {
+  color: green;
+  font-weight: bold;
+}
+
+.pct-vermelho {
+  color: red;
+  font-weight: bold;
+}
