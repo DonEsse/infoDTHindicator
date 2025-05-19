@@ -64,6 +64,16 @@ window.addEventListener("DOMContentLoaded", carregarDados);
 // Também permite que o botão continue funcionando
 document.getElementById("botao-atualizar").addEventListener("click", carregarDados);
 
+// registra o Service Worker
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(reg => console.log("✅ Service Worker registrado:", reg.scope))
+      .catch(err => console.error("❌ Falha no registro do Service Worker:", err));
+  });
+}
+
+
 function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
   const titulo = document.createElement("h2");
   titulo.textContent = tituloTexto;
