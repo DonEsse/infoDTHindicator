@@ -1,15 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>replit</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indicador DTH</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  Hello world
+  <h2>Indicador DTH - Mês Atual</h2>
+  <button id="botao-atualizar">🔄 Atualizar agora</button>
+
+  <!-- Contêiner com tabelas principais -->
+  <div class="tabela-container"></div>
+
+  <!-- Botão para abrir o menu -->
+  <button id="menu-button">Falta Para</button>
+
+  <!-- Menu hambúrguer com tabela de indicadores -->
+  <div class="menu-overlay" id="menu">
+    <button id="close-menu">✖</button>
+    <h2>INDICADORES</h2>
+    <table id="FaltaPara"></table>
+  </div>
+
+  <h3>LEMAR DIGITAL</h3>
+
+  <!-- Carrega o script -->
   <script src="script.js"></script>
 </body>
 
