@@ -64,57 +64,71 @@ window.addEventListener("DOMContentLoaded", carregarDados);
 // Também permite que o botão continue funcionando
 document.getElementById("botao-atualizar").addEventListener("click", carregarDados);
 
-function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
-  const titulo = document.createElement("h2");
-  titulo.textContent = tituloTexto;
-  container.appendChild(titulo);
 
-  const tabela = document.createElement("table");
-  tabela.id = tabelaId;
-
-  // Cabeçalho
-  const cabecalho = document.createElement("tr");
-  titulos.forEach(titulo => {
-    const th = document.createElement("th");
-    th.textContent = titulo;
-    cabecalho.appendChild(th);
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(reg => console.log("✅ Service Worker registrado:", reg.scope))
+      .catch(err => console.error("❌ Falha no registro do Service Worker:", err));
   });
-  tabela.appendChild(cabecalho);
-
-  // Linha de dados
-  const linhaDados = document.createElement("tr");
-  dados.forEach((valor, i) => {
-    const td = document.createElement("td");
-    td.textContent = valor;
-
-    if (typeof valor === "string" && valor.includes('%')) {
-      const num = parseFloat(valor.replace('%', '').replace(',', '.'));
-      td.classList.add("porcentagem");
-
-      if (!isNaN(num)) {
-        switch (tabelaId) {
-          case "indicador-table": // Tempo de Atendimento PP
-          case "indicador-table-ac": // Tempo de Atendimento AC
-            td.classList.add(num >= 75.00 ? "pct-verde" : "pct-vermelho");
-            break;
-
-          case "indicador-table-reab-pp": // Reabertura PP
-            td.classList.add(num <= 1.99 ? "pct-verde" : "pct-vermelho");
-            break;
-
-          case "indicador-table-reab-ac": // Reabertura AC
-            td.classList.add(num <= 3.49 ? "pct-verde" : "pct-vermelho");
-            break;
-        }
-      }
-    }
-
-    linhaDados.appendChild(td);
-  });
-
-  tabela.appendChild(linhaDados);
-  container.appendChild(tabela);
 }
+
+
+    function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
+      const titulo = document.createElement("h2");
+      titulo.textContent = tituloTexto;
+      container.appendChild(titulo);
+
+      const tabela = document.createElement("table");
+      tabela.id = tabelaId;
+
+      // Cabeçalho
+      const cabecalho = document.createElement("tr");
+      titulos.forEach(titulo => {
+        const th = document.createElement("th");
+        th.textContent = titulo;
+        cabecalho.appendChild(th);
+      });
+      tabela.appendChild(cabecalho);
+
+      // Linha de dados
+      const linhaDados = document.createElement("tr");
+      dados.forEach((valor, i) => {
+        const td = document.createElement("td");
+        td.textContent = valor;
+
+        if (typeof valor === "string" && valor.includes('%')) {
+          const num = parseFloat(valor.replace('%', '').replace(',', '.'));
+          td.classList.add("porcentagem");
+
+          if (!isNaN(num)) {
+            // Regras de coloração por tabela
+            switch (tabelaId) {
+              case "indicador-table": // Tempo de Atendimento PP
+              case "indicador-table-ac": // Tempo de Atendimento AC
+                if (num >= 75.00) td.style.backgroundColor = "lightgreen";
+                else td.style.backgroundColor = "lightcoral";
+                break;
+
+              case "indicador-table-reab-pp": // Reabertura PP
+                if (num <= 1.99) td.style.backgroundColor = "lightgreen";
+                else td.style.backgroundColor = "lightcoral";
+                break;
+
+              case "indicador-table-reab-ac": // Reabertura AC
+                if (num <= 3.49) td.style.backgroundColor = "lightgreen";
+                else td.style.backgroundColor = "lightcoral";
+                break;
+            }
+          }
+        }
+
+        linhaDados.appendChild(td);
+      });
+
+      tabela.appendChild(linhaDados);
+      container.appendChild(tabela);
+    }
 
 // Menu hambúrguer
 const menu = document.getElementById('menu');
@@ -127,4 +141,36 @@ menuButton.addEventListener('click', () => {
 
 closeButton.addEventListener('click', () => {
   menu.classList.remove('open');
+});
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js").then(reg => {
+    console.log("✅ Service Worker registrado:", reg.scope);
+
+    // Verifica por novas versões do Service Worker
+    if (reg.waiting) {
+      showUpdateNotification(reg.waiting);
+    }
+
+    reg.addEventListener("updatefound", () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener("statechange", () => {
+        if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+          showUpdateNotification(newWorker);
+        }
+      });
+    });
+  });
+}
+
+function showUpdateNotification(worker) {
+  const notification = document.getElementById("update-notification");
+  notification.style.display = "block";
+  notification.addEventListener("click", () => {
+    worker.postMessage({ action: "skipWaiting" });
+  });
+}
+
+// Força a recarga quando o novo SW tomar controle
+navigator.serviceWorker.addEventListener("controllerchange", () => {
+  window.location.reload();
 });
