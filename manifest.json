@@ -1,6 +1,6 @@
 {
   "name": "Painel de Indicadores",
-  "short_name": "Indicador lEMAR",
+  "short_name": "Indicador LEMAR",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
