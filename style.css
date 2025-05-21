@@ -146,3 +146,34 @@ button:hover {
   font-size: 20px;
   cursor: pointer;
 }
+
+/* Mini tabelas "Até Ontem" */
+.mini-tabela-ate-ontem {
+  width: 100%;
+  max-width: 400px;
+  margin: 10px auto 30px auto;
+  background-color: #f9f9f9;
+  border-collapse: collapse;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+  font-size: 13px;
+}
+
+.mini-tabela-ate-ontem th {
+  background-color: #004080;
+  color: white;
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+.mini-tabela-ate-ontem td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-weight: bold;
+}
+
+h4 {
+  text-align: center;
+  margin-top: 10px;
+  color: #004080;
+}

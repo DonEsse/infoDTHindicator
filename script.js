@@ -12,6 +12,11 @@ function carregarDados() {
       const linhas = resultado.data;
       const linha37 = linhas[36];
 
+      if (!linha37 || !linha37.length) {
+        console.error("❌ A linha 37 está vazia ou não existe. Verifique a estrutura da planilha.");
+        return;
+      }
+
       const linha5 = linhas[4];
       const linha6 = linhas[5];
       const linha8 = linhas[7];
@@ -31,6 +36,9 @@ function carregarDados() {
 
       criarTituloETabela("Reabertura AC", ["REAB AC", "ATS EXE", "AT %"],
         linha37.slice(12, 15), "indicador-table-reab-ac", container);
+
+      // ✅ Mover chamada após criação das tabelas principais
+      adicionarTabelaAteOntem(linhas);
 
       const tabelaFaltaPara = document.getElementById("FaltaPara");
       tabelaFaltaPara.innerHTML = "";
@@ -58,10 +66,59 @@ function carregarDados() {
     });
 }
 
-// Chama a função automaticamente ao carregar a página
+function adicionarTabelaAteOntem(linhas) {
+  const hoje = new Date();
+  const diaAtual = hoje.getDate();
+  const diaOntem = diaAtual - 1;
+
+  const linhaOntem = linhas.find(l => parseInt(l[0]) === diaOntem);
+  if (!linhaOntem) return;
+
+  const tabelas = [
+    { id: "indicador-table", titulo: "Até Ontem - Tempo de Atendimento PP", indice: 4 },
+    { id: "indicador-table-reab-pp", titulo: "Até Ontem - Reabertura PP", indice: 7 },
+    { id: "indicador-table-ac", titulo: "Até Ontem - Tempo de Atendimento AC", indice: 11 },
+    { id: "indicador-table-reab-ac", titulo: "Até Ontem - Reabertura AC", indice: 14 },
+  ];
+
+  tabelas.forEach(t => {
+    const tabelaPrincipal = document.getElementById(t.id);
+    if (!tabelaPrincipal) return;
+
+    const container = tabelaPrincipal.parentElement;
+
+    const titulo = document.createElement("h4");
+    titulo.textContent = t.titulo;
+
+    const tabela = document.createElement("table");
+    tabela.classList.add("mini-tabela-ate-ontem");
+
+    const cabecalho = document.createElement("tr");
+    ["Dia", "Indicador"].forEach(txt => {
+      const th = document.createElement("th");
+      th.textContent = txt;
+      cabecalho.appendChild(th);
+    });
+    tabela.appendChild(cabecalho);
+
+    const linha = document.createElement("tr");
+    const tdDia = document.createElement("td");
+    tdDia.textContent = linhaOntem[0];
+    linha.appendChild(tdDia);
+
+    const tdValor = document.createElement("td");
+    tdValor.textContent = linhaOntem[t.indice] || "-";
+    linha.appendChild(tdValor);
+
+    tabela.appendChild(linha);
+
+    container.insertBefore(titulo, tabelaPrincipal.nextSibling);
+    container.insertBefore(tabela, titulo.nextSibling);
+  });
+}
+
 window.addEventListener("DOMContentLoaded", carregarDados);
 
-// Também permite que o botão continue funcionando
 document.getElementById("botao-atualizar").addEventListener("click", carregarDados);
 
 if ("serviceWorker" in navigator) {
@@ -72,63 +129,54 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-    function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
-      const titulo = document.createElement("h2");
-      titulo.textContent = tituloTexto;
-      container.appendChild(titulo);
+function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
+  const titulo = document.createElement("h2");
+  titulo.textContent = tituloTexto;
+  container.appendChild(titulo);
 
-      const tabela = document.createElement("table");
-      tabela.id = tabelaId;
+  const tabela = document.createElement("table");
+  tabela.id = tabelaId;
 
-      // Cabeçalho
-      const cabecalho = document.createElement("tr");
-      titulos.forEach(titulo => {
-        const th = document.createElement("th");
-        th.textContent = titulo;
-        cabecalho.appendChild(th);
-      });
-      tabela.appendChild(cabecalho);
+  const cabecalho = document.createElement("tr");
+  titulos.forEach(titulo => {
+    const th = document.createElement("th");
+    th.textContent = titulo;
+    cabecalho.appendChild(th);
+  });
+  tabela.appendChild(cabecalho);
 
-      // Linha de dados
-      const linhaDados = document.createElement("tr");
-      dados.forEach((valor, i) => {
-        const td = document.createElement("td");
-        td.textContent = valor;
+  const linhaDados = document.createElement("tr");
+  dados.forEach((valor, i) => {
+    const td = document.createElement("td");
+    td.textContent = valor;
 
-        if (typeof valor === "string" && valor.includes('%')) {
-          const num = parseFloat(valor.replace('%', '').replace(',', '.'));
-          td.classList.add("porcentagem");
+    if (typeof valor === "string" && valor.includes('%')) {
+      const num = parseFloat(valor.replace('%', '').replace(',', '.'));
+      td.classList.add("porcentagem");
 
-          if (!isNaN(num)) {
-            // Regras de coloração por tabela
-            switch (tabelaId) {
-              case "indicador-table": // Tempo de Atendimento PP
-              case "indicador-table-ac": // Tempo de Atendimento AC
-                if (num >= 75.00) td.style.backgroundColor = "lightgreen";
-                else td.style.backgroundColor = "lightcoral";
-                break;
-
-              case "indicador-table-reab-pp": // Reabertura PP
-                if (num <= 1.99) td.style.backgroundColor = "lightgreen";
-                else td.style.backgroundColor = "lightcoral";
-                break;
-
-              case "indicador-table-reab-ac": // Reabertura AC
-                if (num <= 3.49) td.style.backgroundColor = "lightgreen";
-                else td.style.backgroundColor = "lightcoral";
-                break;
-            }
-          }
+      if (!isNaN(num)) {
+        switch (tabelaId) {
+          case "indicador-table":
+          case "indicador-table-ac":
+            td.style.backgroundColor = num >= 75.00 ? "lightgreen" : "lightcoral";
+            break;
+          case "indicador-table-reab-pp":
+            td.style.backgroundColor = num <= 1.99 ? "lightgreen" : "lightcoral";
+            break;
+          case "indicador-table-reab-ac":
+            td.style.backgroundColor = num <= 3.49 ? "lightgreen" : "lightcoral";
+            break;
         }
-
-        linhaDados.appendChild(td);
-      });
-
-      tabela.appendChild(linhaDados);
-      container.appendChild(tabela);
+      }
     }
 
-// Menu hambúrguer
+    linhaDados.appendChild(td);
+  });
+
+  tabela.appendChild(linhaDados);
+  container.appendChild(tabela);
+}
+
 const menu = document.getElementById('menu');
 const menuButton = document.getElementById('menu-button');
 const closeButton = document.getElementById('close-menu');
@@ -140,11 +188,11 @@ menuButton.addEventListener('click', () => {
 closeButton.addEventListener('click', () => {
   menu.classList.remove('open');
 });
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./service-worker.js").then(reg => {
     console.log("✅ Service Worker registrado:", reg.scope);
 
-    // Verifica por novas versões do Service Worker
     if (reg.waiting) {
       showUpdateNotification(reg.waiting);
     }
@@ -168,7 +216,40 @@ function showUpdateNotification(worker) {
   });
 }
 
-// Força a recarga quando o novo SW tomar controle
 navigator.serviceWorker.addEventListener("controllerchange", () => {
   window.location.reload();
 });
+
+/* Mini tabelas "Até Ontem" */
+const estiloMiniTabela = document.createElement("style");
+estiloMiniTabela.innerHTML = `
+.mini-tabela-ate-ontem {
+  width: 100%;
+  max-width: 400px;
+  margin: 10px auto 30px auto;
+  background-color: #f9f9f9;
+  border-collapse: collapse;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+  font-size: 13px;
+}
+
+.mini-tabela-ate-ontem th {
+  background-color: #004080;
+  color: white;
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+.mini-tabela-ate-ontem td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-weight: bold;
+}
+
+h4 {
+  text-align: center;
+  margin-top: 10px;
+  color: #004080;
+}`;
+document.head.appendChild(estiloMiniTabela);
