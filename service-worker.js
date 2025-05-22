@@ -1,4 +1,4 @@
-const CACHE_NAME = "indicadores-cache-v2.2"; // Altere esse nome em toda nova versão
+const CACHE_NAME = "indicadores-cache-v2.1"; // Alterar esse nome em toda nova versão
 const urlsToCache = [
   "./",
   "./index.html",

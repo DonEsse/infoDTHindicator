@@ -25,13 +25,13 @@ function carregarDados() {
       const container = document.querySelector(".tabela-container");
       container.innerHTML = "";
 
-      criarTituloETabela("Tempo de Atendimento PP", ["TOTAL OS", "PRAZO", "VENCIDO", "AF %"],
+      criarTituloETabela("Tempo de Atendimento PP", ["TOTAL OS", "PRAZO", "VENCIDO", "TA %"],
         linha37.slice(1, 5), "indicador-table", container);
 
       criarTituloETabela("Reabertura PP", ["REAB PP", "PPS EXE", "PP %"],
         linha37.slice(5, 8), "indicador-table-reab-pp", container);
 
-      criarTituloETabela("Tempo de Atendimento AC", ["TOTAL OS", "PRAZO", "VENCIDO", "AF %"],
+      criarTituloETabela("Tempo de Atendimento AC", ["TOTAL OS", "PRAZO", "VENCIDO", "TA %"],
         linha37.slice(8, 12), "indicador-table-ac", container);
 
       criarTituloETabela("Reabertura AC", ["REAB AC", "ATS EXE", "AT %"],
@@ -234,7 +234,7 @@ estiloMiniTabela.innerHTML = `
 }
 
 .mini-tabela-ate-ontem th {
-  background-color: #004080;
+  background-color: ##0056b3;
   color: white;
   padding: 8px;
   border: 1px solid #ccc;
