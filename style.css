@@ -12,11 +12,20 @@ body {
 h2 {
   text-align: center;
   color: #004080;
+  font-size: 24px;
 }
 
 h3 {
   text-align: center;
   color: #95b9f4;
+  font-size: 20px;
+}
+
+h4 {
+  text-align: center;
+  margin-top: 10px;
+  color: #0056b3;
+  font-size: 16px;
 }
 
 /* Botões */
@@ -33,7 +42,7 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #003f7f;
 }
 
 /* Container de tabelas principais */
@@ -63,7 +72,7 @@ button:hover {
 }
 
 .tabela-container th {
-  background-color: #007BFF;
+  background-color: #0056b3;
   color: white;
 }
 
@@ -159,7 +168,7 @@ button:hover {
 }
 
 .mini-tabela-ate-ontem th {
-  background-color: #0056b3;
+  background-color: #007BFF;
   color: white;
   padding: 8px;
   border: 1px solid #ccc;
@@ -170,10 +179,4 @@ button:hover {
   border: 1px solid #ccc;
   text-align: center;
   font-weight: bold;
-}
-
-h4 {
-  text-align: center;
-  margin-top: 10px;
-  color: #004080;
 }

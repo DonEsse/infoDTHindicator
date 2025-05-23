@@ -42,7 +42,7 @@ function carregarDados() {
 
       const tabelaFaltaPara = document.getElementById("FaltaPara");
       tabelaFaltaPara.innerHTML = "";
-
+ 
       const cabecalho = document.createElement("tr");
       ["CATEGORIA", "FALTA", "PARA"].forEach(titulo => {
         const th = document.createElement("th");
@@ -66,6 +66,7 @@ function carregarDados() {
     });
 }
 
+// Função para adicionar mini tabelas "Até Ontem"
 function adicionarTabelaAteOntem(linhas) {
   const hoje = new Date();
   const diaAtual = hoje.getDate();
@@ -102,14 +103,36 @@ function adicionarTabelaAteOntem(linhas) {
     tabela.appendChild(cabecalho);
 
     const linha = document.createElement("tr");
+
     const tdDia = document.createElement("td");
     tdDia.textContent = linhaOntem[0];
     linha.appendChild(tdDia);
 
     const tdValor = document.createElement("td");
-    tdValor.textContent = linhaOntem[t.indice] || "-";
-    linha.appendChild(tdValor);
+    const valor = linhaOntem[t.indice] || "-";
+    tdValor.textContent = valor;
 
+    // Aplica a cor de fundo se for percentual
+    if (typeof valor === "string" && valor.includes('%')) {
+      const num = parseFloat(valor.replace('%', '').replace(',', '.'));
+
+      if (!isNaN(num)) {
+        switch (t.id) {
+          case "indicador-table":
+          case "indicador-table-ac":
+            tdValor.style.backgroundColor = num >= 75.00 ? "lightgreen" : "lightcoral";
+            break;
+          case "indicador-table-reab-pp":
+            tdValor.style.backgroundColor = num <= 1.99 ? "lightgreen" : "lightcoral";
+            break;
+          case "indicador-table-reab-ac":
+            tdValor.style.backgroundColor = num <= 3.49 ? "lightgreen" : "lightcoral";
+            break;
+        }
+      }
+    }
+
+    linha.appendChild(tdValor);
     tabela.appendChild(linha);
 
     container.insertBefore(titulo, tabelaPrincipal.nextSibling);
@@ -117,6 +140,7 @@ function adicionarTabelaAteOntem(linhas) {
   });
 }
 
+// Carrega os dados ao carregar a página
 window.addEventListener("DOMContentLoaded", carregarDados);
 
 document.getElementById("botao-atualizar").addEventListener("click", carregarDados);
@@ -129,6 +153,7 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+// Função para criar título e tabela
 function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
   const titulo = document.createElement("h2");
   titulo.textContent = tituloTexto;
@@ -150,6 +175,7 @@ function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
     const td = document.createElement("td");
     td.textContent = valor;
 
+    // Verifica se o valor é uma porcentagem e aplica a cor de fundo
     if (typeof valor === "string" && valor.includes('%')) {
       const num = parseFloat(valor.replace('%', '').replace(',', '.'));
       td.classList.add("porcentagem");
@@ -177,6 +203,7 @@ function criarTituloETabela(tituloTexto, titulos, dados, tabelaId, container) {
   container.appendChild(tabela);
 }
 
+// Função para abrir e fechar o menu hamburguer
 const menu = document.getElementById('menu');
 const menuButton = document.getElementById('menu-button');
 const closeButton = document.getElementById('close-menu');
@@ -222,34 +249,5 @@ navigator.serviceWorker.addEventListener("controllerchange", () => {
 
 /* Mini tabelas "Até Ontem" */
 const estiloMiniTabela = document.createElement("style");
-estiloMiniTabela.innerHTML = `
-.mini-tabela-ate-ontem {
-  width: 100%;
-  max-width: 400px;
-  margin: 10px auto 30px auto;
-  background-color: #f9f9f9;
-  border-collapse: collapse;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
-  font-size: 13px;
-}
 
-.mini-tabela-ate-ontem th {
-  background-color: ##0056b3;
-  color: white;
-  padding: 8px;
-  border: 1px solid #ccc;
-}
-
-.mini-tabela-ate-ontem td {
-  padding: 8px;
-  border: 1px solid #ccc;
-  text-align: center;
-  font-weight: bold;
-}
-
-h4 {
-  text-align: center;
-  margin-top: 10px;
-  color: #004080;
-}`;
 document.head.appendChild(estiloMiniTabela);
